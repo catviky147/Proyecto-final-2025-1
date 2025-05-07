@@ -92,4 +92,3 @@ canvas.bind("<Button-1>", seleccionar_celda)
 
 dibujar_cuadricula()
 ventana.mainloop()
-

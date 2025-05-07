@@ -1,34 +1,38 @@
 import tkinter as tk
 
-filas = 16
-columnas = 16
+# Tamaño de las celdas
 tamaño_celda = 20
 
-#No se si sirve, creo que no
-cuadricula = [[1 for _ in range (filas)] for _ in range(columnas)]
-celdas_seleccionadas = 0
-inicializa = False
- 
+#obtener ruta
+
+# Cargar tablero desde archivo
+def cargar_tablero_desde_csv(archivo):
+    tablero = []
+    with open(archivo, 'r') as archivo:
+        for linea in archivo:
+            fila = [int(celda) for celda in linea.strip().split(',')]
+            tablero.append(fila)
+    return tablero
 
 # Contar vecinos vivos
-def contar_vecinos(cuadricula, x, y):
+def contar_vecinos(cuadricula, x, y, filas, columnas):
     vivos = 0
-    for desplazamiento_x in [-1, 0, 1]:
-        for desplazamiento_y in [-1, 0, 1]:
-            if desplazamiento_x == 0 and desplazamiento_y == 0:
+    for dx in [-1, 0, 1]:
+        for dy in [-1, 0, 1]:
+            if dx == 0 and dy == 0:
                 continue
-            nx, ny = x + desplazamiento_x, y + desplazamiento_y
+            nx, ny = x + dx, y + dy
             if 0 <= nx < filas and 0 <= ny < columnas:
                 vivos += cuadricula[nx][ny]
     return vivos
 
-#reglas 
-def siguiente_generacion(cuadricula):
+# Reglas del juego
+def siguiente_generacion(cuadricula, filas, columnas):
     nueva = []
     for i in range(filas):
         fila = []
         for j in range(columnas):
-            vecinos = contar_vecinos(cuadricula, i, j)
+            vecinos = contar_vecinos(cuadricula, i, j, filas, columnas)
             if cuadricula[i][j] == 1:
                 fila.append(1 if vecinos in (2, 3) else 0)
             else:
@@ -36,20 +40,41 @@ def siguiente_generacion(cuadricula):
         nueva.append(fila)
     return nueva
 
-
-#esto todavia no LMAOOOOOOOOO
-def dibujar_cuadricula():
+# Dibujar el tablero
+def dibujar_cuadricula(cuadricula, filas, columnas):
     canvas.delete("all")
     for i in range(filas):
-        for j in range (columnas):
-            x1 = j*tamaño_celda
-            y1 = i*tamaño_celda
+        for j in range(columnas):
+            x1 = j * tamaño_celda
+            y1 = i * tamaño_celda
             x2 = x1 + tamaño_celda
             y2 = y1 + tamaño_celda
-            color = "white" if cuadricula[i][j] == 1 else "black"
-            canvas.create_rectangle(x1, y1, x2, y2, fill = color)
-            
-            
-            
-        
+            color = "pink" if cuadricula[i][j] == 1 else "black"
+            canvas.create_rectangle(x1, y1, x2, y2, fill=color, outline="gray")
 
+# Actualizar sin usar global
+def actualizar(cuadricula, filas, columnas):
+    nueva = siguiente_generacion(cuadricula, filas, columnas)
+    dibujar_cuadricula(nueva, filas, columnas)
+    root.after(300, lambda: actualizar(nueva, filas, columnas))
+
+# ---- Código principal ----
+
+# Cargar datos
+
+
+cuadricula_inicial = cargar_tablero_desde_csv("archivo")
+filas = len(cuadricula_inicial)
+columnas = len(cuadricula_inicial[0])
+
+# Crear ventana
+root = tk.Tk()
+root.title("Juego de la Vida")
+canvas = tk.Canvas(root, width=columnas * tamaño_celda, height=filas * tamaño_celda)
+canvas.pack()
+
+# Dibujar y comenzar animación
+dibujar_cuadricula(cuadricula_inicial, filas, columnas)
+actualizar(cuadricula_inicial, filas, columnas)
+
+root.mainloop()
