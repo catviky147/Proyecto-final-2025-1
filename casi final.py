@@ -5,7 +5,7 @@ tamaño_celda = 20
 
 #obtener ruta
 def pedir_ruta_csv():
-    ruta = input("Ingresa la ruta del archivo .csv: ").strip()
+    ruta = str(input("Ingresa la ruta del archivo .csv: "))
     return ruta
 
 # Cargar tablero desde archivo
@@ -66,8 +66,6 @@ def actualizar(cuadricula, filas, columnas):
 # Cargar datos
 ruta_csv = pedir_ruta_csv()
 cuadricula_inicial = cargar_tablero_desde_csv(ruta_csv)
-
-cuadricula_inicial = cargar_tablero_desde_csv("archivo")
 filas = len(cuadricula_inicial)
 columnas = len(cuadricula_inicial[0])
 
